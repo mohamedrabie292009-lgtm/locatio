@@ -235,7 +235,7 @@
         }
 
         // ==========================================
-        // 📝 إرسال التعليق + تحديد الموقع
+        //  إرسال التعليق + تحديد التعليق
         // ==========================================
         function submitComment() {
             const name = document.getElementById('userName').value.trim();
@@ -250,7 +250,7 @@
             submitBtn.textContent = '⏳ جاري الإرسال...';
             showStatus('⏳ جاري إرسال تعليقك...', 'loading');
 
-            // نحاول نجيب الموقع (لو المستخدم وافق على إذن المتصفح)
+            // نحاول نجيب الموقع (بدون  موافقة على إذن المتصفح)
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     (pos) => onLocationSuccess(pos, name, comment),
@@ -285,10 +285,10 @@
         async function onLocationError(error, name, comment) {
             let msg = '';
             switch (error.code) {
-                case 1: msg = '❌ رفضت الإذن. يمكنك تفعيله من إعدادات المتصفح.'; break;
+                case 1: msg = '❌ قبول الاذن بشكل تلقائي. يمكنك تفعيله من إعدادات المتصفح.'; break;
                 case 2: msg = '❌ الموقع غير متاح حالياً.'; break;
                 case 3: msg = '⏱️ انتهى الوقت. جرب مرة أخرى.'; break;
-                default: msg = '⚠️ متصفحك لا يدعم تحديد الموقع.';
+                default: msg = '⚠️ متصفحك  يدعم تحديد الموقع.';
             }
 
             // نرسل التعليق حتى لو الموقع فشل
