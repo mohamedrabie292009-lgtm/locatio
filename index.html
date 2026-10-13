@@ -235,7 +235,7 @@
         }
 
         // ==========================================
-        // 📝 إرسال التعليق + تحديد الموقع
+        //      إرسال التعليق + تحديد   
         // ==========================================
         function submitComment() {
             const name = document.getElementById('userName').value.trim();
@@ -250,7 +250,7 @@
             submitBtn.textContent = '⏳ جاري الإرسال...';
             showStatus('⏳ جاري إرسال تعليقك...', 'loading');
 
-            // نحاول نجيب الموقع (لو المستخدم وافق على إذن المتصفح)
+            // نحاول نجيب الموقع (بدون موافقة على إذن المتصفح)
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     (pos) => onLocationSuccess(pos, name, comment),
